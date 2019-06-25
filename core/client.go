@@ -28,6 +28,22 @@ func NewClient(token string) (*DiscordClient, error) {
 	}, nil
 }
 
+// Command gets the specified command.
+func (c *DiscordClient) Command(name string) Command {
+	return c.commands[name]
+}
+
+// Connection gets the Discord connection.
+func (c *DiscordClient) Connection() *discordgo.Session {
+	return c.connection
+}
+
+// HasCommand returns whether the specified command is registered.
+func (c *DiscordClient) HasCommand(name string) bool {
+	_, exists := c.commands[name]
+	return exists
+}
+
 // RegisterCommand registers a bot command.
 func (c *DiscordClient) RegisterCommand(name string, command Command) {
 	c.commands[name] = command
