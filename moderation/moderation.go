@@ -5,6 +5,7 @@ import (
 	"github.com/hassieswift621/discord-hackweek-2019/core"
 )
 
+// Initialise performs initialisation for the moderation commands by registering them.
 func Initialise(client *core.DiscordClient) {
 	// Register moderation commands.
 
