@@ -24,6 +24,12 @@ func Initialise(client *core.DiscordClient) {
 			return
 		}
 
+		// If there is a menu command in progress, execute that.
+		if client.HasMenuCommand(message.ChannelID + "-" + message.Author.ID) {
+			client.MenuCommand(message.ChannelID+"-"+message.Author.ID)(message, strings.Split(message.Content, " "))
+			return
+		}
+
 		// If the message does not start with the bot prefix, ignore.
 		// Prefix is m.
 		if !strings.HasPrefix(message.Content, "m.") {
