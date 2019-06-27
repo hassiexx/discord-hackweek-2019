@@ -218,19 +218,13 @@ func (c *kick) handleConfirmation() {
 		// Send embed with log.
 		embed := &discordgo.MessageEmbed{
 			Color: int(actionColourKick),
-			Title: "Kick",
+			Author: &discordgo.MessageEmbedAuthor{
+				Name:    c.message.Author.Username + "#" + c.message.Author.Discriminator,
+				IconURL: c.message.Author.AvatarURL(""),
+			},
+			Title:       "Kick | Case ID: #",
+			Description: user.Username + "#" + user.Discriminator + " was kicked\nID: " + user.ID,
 			Fields: []*discordgo.MessageEmbedField{
-				{
-					Name:   "User",
-					Value:  user.Username + "#" + user.Discriminator + "(" + user.ID + ")",
-					Inline: false,
-				},
-				{
-					Name: "Moderator",
-					Value: c.message.Author.Username + "#" + c.message.Author.Discriminator +
-						"(" + c.message.Author.ID + ")",
-					Inline: false,
-				},
 				{
 					Name:   "Reason",
 					Value:  c.modData.Reason,
