@@ -14,7 +14,7 @@ var database *mongo.Database
 // Connect attempts to connect to the database.
 func Connect() error {
 	// Create client.
-	cl, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("DISCORD_HACK_2019_MONGODB")))
+	cl, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("DISCORD_HACK_WEEK_2019_MONGODB")))
 	if err != nil {
 		return err
 	}
