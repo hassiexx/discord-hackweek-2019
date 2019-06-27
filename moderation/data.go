@@ -1,5 +1,10 @@
 package moderation
 
+import (
+	"github.com/hassieswift621/discord-hackweek-2019/db"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
 // Action is the type for moderation action constants.
 type action int32
 
@@ -12,18 +17,38 @@ const (
 	actionBan
 )
 
+// ActionColours is the type for moderator action embed colours.
+type actionColour int
+
+const (
+	actionColourWarn actionColour = 0xf5e942
+	actionColourKick actionColour = 0xf5a442
+	actionColourBan  actionColour = 0xf54e42
+)
+
 // ModerationData stores the data about the moderation received from menu commands.
 type moderationData struct {
-	Reason string
-	Notes  string
+	LogChannelID string
+	Reason       string
+	Notes        string
 }
 
-// ModLog is the DB structure for a moderation log.
-type modLog struct {
-	Action    action `bson:"action,int32"`
-	GuildID   string `bson:"guild_id"`
-	Notes     string `bson:"notes,string"`
-	Reason    string `bson:"reason,string"`
-	Timestamp string `bson:"timestamp,string"`
-	UserID    string `bson:"user_id,string"`
+// ModSettings is the DB structure for moderation settings for a guild.
+type modSettings struct {
+	GuildID    string `bson:"guild_id,string,omitempty"`
+	LogChannel string `bson:"log_channel,string,omitempty"`
+}
+
+// LogChannel gets the ID of the log channel if set, "" otherwise.
+func logChannel(guildID string) (string, error) {
+	var settings modSettings
+	err := db.QueryOne(db.CollectionModSettings, modSettings{GuildID: guildID}, &settings)
+	if err != nil && err == mongo.ErrNoDocuments {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+
+	return settings.LogChannel, nil
 }

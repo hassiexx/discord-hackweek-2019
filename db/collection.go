@@ -4,5 +4,6 @@ package db
 type Collection string
 
 const (
-	CollectionModLogs Collection = "mod_logs"
+	CollectionModLogs     Collection = "mod_logs"
+	CollectionModSettings Collection = "mod_settings"
 )

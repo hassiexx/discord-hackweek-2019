@@ -2,6 +2,7 @@ package moderation
 
 import (
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/hassieswift621/discord-hackweek-2019/core"
@@ -43,17 +44,42 @@ func (c *kick) execute() {
 		return
 	}
 
-	// TODO: Check if the log channel is set.
+	// Get log channel.
+	logCh, err := logChannel(c.message.GuildID)
+	if err != nil {
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":x: | An internal error occurred")
+		return
+	}
+
+	// Check if the channel is set.
+	if logCh == "" {
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | The log channel is not set")
+		return
+	}
+
+	// Check if the channel exists.
+	exists, err := utility.ChannelExists(c.connection, c.message.GuildID, logCh)
+	if err != nil {
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":x: | An internal error occurred")
+		return
+	}
+	if !exists {
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | The log channel does not exist, please re-set")
+		return
+	}
+
+	// Store log channel ID.
+	c.modData.LogChannelID = logCh
 
 	// All good at this point, prepare command menu for moderator to input reason and any notes.
 
 	// The menu title will be the list of users being kicked as well as a message to cancel the kick.
 	var menuTitle string = "Moderation menu - Kick\n------------------------------\n" +
-		"Users being kicked: " + c.message.Mentions[0].Username + "#" + c.message.Mentions[0].Discriminator
+		"Users to kick: " + c.message.Mentions[0].Username + "#" + c.message.Mentions[0].Discriminator
 	for i := 1; i < len(c.message.Mentions); i++ {
 		menuTitle = menuTitle + ", " + c.message.Mentions[i].Username + "#" + c.message.Mentions[i].Discriminator
 	}
-	menuTitle = "\nEnter < cancel > at any time to cancel the kick\n"
+	menuTitle = "\nEnter < cancel > at any time to cancel\n"
 	c.menuData.Log = append(c.menuData.Log, menuTitle)
 
 	// Register menu command.
@@ -154,7 +180,7 @@ func (c *kick) handleConfirmation() {
 	}
 
 	// If input does not equal 1 or 2, notify and bail out.
-	if c.args[0] != "1" && c.args[1] != "2" {
+	if c.args[0] != "1" && c.args[0] != "2" {
 		// Update menu.
 		c.updateMenu("\nInvalid input\nEnter < 1 > to confirm\nEnter < 2 > to cancel")
 		return
@@ -172,8 +198,59 @@ func (c *kick) handleConfirmation() {
 	}
 
 	// Input is 1.
-	// For each user kick.
+	// For each user, kick, create mod log, send mod log and store in database.
 
+	for i := 0; i < len(c.message.Mentions); i++ {
+		// Store user.
+		user := c.message.Mentions[i]
+
+		// Store time of kick.
+		timestamp := time.Now()
+
+		// Kick user.
+		err := c.connection.GuildMemberDeleteWithReason(c.message.GuildID, user.ID, c.modData.Reason)
+		if err != nil {
+			// Send error message and go to next loop iteration.
+			_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":x: | Failed to kick user")
+			continue
+		}
+
+		// Send embed with log.
+		embed := &discordgo.MessageEmbed{
+			Color: int(actionColourKick),
+			Title: "Kick",
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:   "User",
+					Value:  user.Username + "#" + user.Discriminator + "(" + user.ID + ")",
+					Inline: false,
+				},
+				{
+					Name: "Moderator",
+					Value: c.message.Author.Username + "#" + c.message.Author.Discriminator +
+						"(" + c.message.Author.ID + ")",
+					Inline: false,
+				},
+				{
+					Name:   "Reason",
+					Value:  c.modData.Reason,
+					Inline: false,
+				},
+				{
+					Name:   "Notes",
+					Value:  c.modData.Notes,
+					Inline: false,
+				},
+			},
+			Timestamp: timestamp.Format(time.RFC3339Nano),
+		}
+
+		// Send log in log channel.
+		_, _ = c.connection.ChannelMessageSendEmbed(c.modData.LogChannelID, embed)
+
+		// Sleep for 0.2s.
+		time.Sleep(200 * time.Millisecond)
+	}
 }
 
 // UpdateMenu updates the menu message with the specified content.
