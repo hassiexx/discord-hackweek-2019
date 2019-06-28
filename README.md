@@ -1,7 +1,10 @@
 # discord-hackweek-2019
 A moderation bot in Go for Discord Hack Week 2019 using menu command systems for improved usability and interaction.
+<img src="/discord_banner.jpeg">
 
-The purpose of this bot was to try a different way of executing kicks and bans rather than trying to make as many commands as possible for this event.
+
+# About
+The purpose of this bot was to try a different way of executing kicks and bans rather than trying to make as many commands as possible for this event, so don't expect too many commands :D
 
 Instead of chaining everything in a single command with an argument spliterator such as ';' which most bots do, which gets messy, this bot uses multi stage commands also known as "command menus".
 
