@@ -28,7 +28,7 @@ func (c *ban) execute() {
 	// Store mentions.
 	c.modData.Mentions = c.message.Mentions
 
-	// Check if the users to kick have a higher role than the bot.
+	// Check if the users to ban have a higher role than the bot.
 	// We'll also check for self mentions at this point too.
 	for i := 0; i < len(c.modData.Mentions); i++ {
 		// Store user.
@@ -219,7 +219,7 @@ func (c *ban) handleConfirmation() {
 		c.client.UnregisterMenuCommand(c.message.ChannelID + "-" + c.message.Author.ID)
 
 		// Update menu.
-		c.updateMenu("\n> Kick cancelled")
+		c.updateMenu("\n> Ban cancelled")
 
 		return
 	}
