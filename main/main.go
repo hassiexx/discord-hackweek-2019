@@ -7,6 +7,7 @@ import (
 	"github.com/hassieswift621/discord-hackweek-2019/cmdlistener"
 	"github.com/hassieswift621/discord-hackweek-2019/core"
 	"github.com/hassieswift621/discord-hackweek-2019/db"
+	"github.com/hassieswift621/discord-hackweek-2019/info"
 	"github.com/hassieswift621/discord-hackweek-2019/moderation"
 )
 
@@ -37,6 +38,9 @@ func main() {
 
 	// Initialise moderation commands.
 	moderation.Initialise(client)
+
+	// Initialise info commands.
+	info.Initialise(client)
 
 	// Connect.
 	err = client.Connect()

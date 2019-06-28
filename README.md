@@ -1,4 +1,4 @@
-# discord-hackweek-2019
+# Discord Hack Week 2019
 <img src="/discord_banner.jpeg">
 
 # About
