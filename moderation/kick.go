@@ -21,7 +21,7 @@ type kick struct {
 func (c *kick) execute() {
 	// If there are no mentions for kicking users, bail out.
 	if len(c.message.Mentions) == 0 {
-		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You need to mention at least one user to kick")
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You need to mention at least one user")
 		return
 	}
 
@@ -45,7 +45,7 @@ func (c *kick) execute() {
 			}
 			if !botHigher {
 				_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | Cannot moderate "+
-					user.Username+"#"+user.Discriminator+" because they have a higher role than the bot")
+					user.Username+"#"+user.Discriminator+" because they have a higher role than me")
 				return
 			}
 		}
@@ -120,7 +120,7 @@ func (c *kick) execute() {
 	})
 
 	// Send menu message.
-	c.updateMenu("* Enter reason (this is also shown in the server's audit log)...")
+	c.updateMenu("* Enter reason (this is also shown in the server's audit log)")
 }
 
 // HandleCancel handles the cancellation of the menu.
@@ -163,7 +163,7 @@ func (c *kick) handleReason() {
 	})
 
 	// Update menu.
-	c.updateMenu("* Enter any additional notes or enter 'none'")
+	c.updateMenu("* Enter any additional notes or enter < none >")
 }
 
 // HandleNotes handles the input for the notes.

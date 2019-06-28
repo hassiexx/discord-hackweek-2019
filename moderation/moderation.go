@@ -14,4 +14,9 @@ func Initialise(client *core.DiscordClient) {
 		(&kick{client: client, connection: connection, message: message, args: args,
 			menuData: &core.MenuCommandData{}, modData: &moderationData{}}).execute()
 	})
+
+	// Log Channel.
+	client.RegisterCommand("logchannel", func(connection *discordgo.Session, message *discordgo.Message, args []string) {
+		(&setLogChannel{client: client, connection: connection, message: message, args: args}).execute()
+	})
 }
