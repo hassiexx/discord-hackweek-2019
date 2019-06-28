@@ -13,7 +13,7 @@ Instead of chaining everything in a single command with an argument spliterator 
  - logchannel #channel - Sets the log channel to send moderation logs to, this must be set.
  - warn @user - Activates the warn menu to warn the mentioned users
 
-<img src="/screenshot_01.png" width="100">
+<img src="/screenshot_01.png" width="500">
 
 # Instructions
 
