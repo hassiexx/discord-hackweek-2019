@@ -4,14 +4,19 @@ import "github.com/bwmarrin/discordgo"
 
 // ChannelExists checks whether a channel exists in a guild using the channel ID.
 func ChannelExists(connection *discordgo.Session, guildID string, channelID string) (bool, error) {
-	// Get guild channels.
-	channels, err := connection.GuildChannels(guildID)
+	// Get guild.
+	guild, err := connection.State.Guild(guildID)
+
+	// If there was an error, get the guild via REST.
 	if err != nil {
-		return false, err
+		guild, err = connection.Guild(guildID)
+		if err != nil {
+			return false, err
+		}
 	}
 
 	// Run through channels and find the channel.
-	for _, channel := range channels {
+	for _, channel := range guild.Channels {
 		if channel.ID == channelID {
 			return true, nil
 		}
