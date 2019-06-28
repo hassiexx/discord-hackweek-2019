@@ -2,6 +2,17 @@
 A moderation bot in Go for Discord Hack Week 2019 using menu command systems for improved usability and interaction.
 Still heavily in progress though, no commands running as of yet.
 
+The purpose of this bot was to show a different way of executing kicks and bans rather than trying to make as many commands as possible for this event.
+
+Instead of chaining everything in a single command with an argument spliterator such as ';' which most bots do, which gets messy, this bot uses multi stage commands also known as "command menus" to do this.
+
+# Commands
+ - Prefix: ``m.``
+ - ban @user - Activates the ban menu to ban the mentioned users
+ - kick @user - Activates the kick menu to kick the mentioned users
+ - logchannel #channel - Sets the log channel to send moderation logs to, this must be set.
+ - warn @user - Activates the warn menu to warn the mentioned users
+
 # Instructions
 
 ## Setup your environment variables
