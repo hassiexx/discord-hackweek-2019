@@ -9,7 +9,7 @@ import (
 	"github.com/hassieswift621/discord-hackweek-2019/utility"
 )
 
-type kick struct {
+type ban struct {
 	client     *core.DiscordClient
 	connection *discordgo.Session
 	message    *discordgo.Message
@@ -18,8 +18,8 @@ type kick struct {
 	modData    *moderationData
 }
 
-func (c *kick) execute() {
-	// If there are no mentions for kicking users, bail out.
+func (c *ban) execute() {
+	// If there are no mentions for banning users, bail out.
 	if len(c.message.Mentions) == 0 {
 		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You need to mention at least one user")
 		return
@@ -52,8 +52,8 @@ func (c *kick) execute() {
 	}
 
 	// Get permissions for the user and bot.
-	userHasPerms, err1 := utility.HasPermission(c.connection, c.message.Author.ID, c.message.ChannelID, discordgo.PermissionKickMembers)
-	botHasPerms, err2 := utility.HasPermission(c.connection, c.message.Author.ID, c.message.ChannelID, discordgo.PermissionKickMembers)
+	userHasPerms, err1 := utility.HasPermission(c.connection, c.message.Author.ID, c.message.ChannelID, discordgo.PermissionBanMembers)
+	botHasPerms, err2 := utility.HasPermission(c.connection, c.message.Author.ID, c.message.ChannelID, discordgo.PermissionBanMembers)
 	if err1 != nil || err2 != nil {
 		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":x: | An internal error occurred")
 		return
@@ -61,13 +61,13 @@ func (c *kick) execute() {
 
 	// If the user does not have permission, send message and bail out.
 	if !userHasPerms {
-		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You require KICK permissions to perform this action")
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You require BAN permissions to perform this action")
 		return
 	}
 
 	// If the bot does not have permission, send message and bail out.
 	if !botHasPerms {
-		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | The bot requires KICK permissions to perform this action")
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | The bot requires BAN permissions to perform this action")
 		return
 	}
 
@@ -100,9 +100,9 @@ func (c *kick) execute() {
 
 	// All good at this point, prepare command menu for moderator to input reason and any notes.
 
-	// The menu title will be the list of users being kicked as well as a message to cancel the kick.
-	var menuTitle string = "Moderation menu - Kick\n------------------------------\n" +
-		"Users to kick: " + c.modData.Mentions[0].Username + "#" + c.modData.Mentions[0].Discriminator
+	// The menu title will be the list of users being banned as well as a message to cancel the ban.
+	var menuTitle string = "Moderation menu - Ban\n------------------------------\n" +
+		"Users to ban: " + c.modData.Mentions[0].Username + "#" + c.modData.Mentions[0].Discriminator
 	for i := 1; i < len(c.modData.Mentions); i++ {
 		menuTitle = menuTitle + ", " + c.modData.Mentions[i].Username + "#" + c.modData.Mentions[i].Discriminator
 	}
@@ -125,13 +125,13 @@ func (c *kick) execute() {
 
 // HandleCancel handles the cancellation of the menu.
 // It returns true if the command was cancelled.
-func (c *kick) handleCancel() bool {
+func (c *ban) handleCancel() bool {
 	if strings.ToLower(c.message.Content) == "cancel" {
 		// Unregister menu command.
 		c.client.UnregisterMenuCommand(c.message.ChannelID + "-" + c.message.Author.ID)
 
 		// Send message.
-		c.updateMenu("\n> Kick cancelled")
+		c.updateMenu("\n> Ban cancelled")
 
 		return true
 	}
@@ -140,7 +140,7 @@ func (c *kick) handleCancel() bool {
 }
 
 // HandleReason handles the input for the reason.
-func (c *kick) handleReason() {
+func (c *ban) handleReason() {
 	// Handle cancel and bail out if cancelled.
 	if c.handleCancel() {
 		return
@@ -167,7 +167,7 @@ func (c *kick) handleReason() {
 }
 
 // HandleNotes handles the input for the notes.
-func (c *kick) handleNotes() {
+func (c *ban) handleNotes() {
 	// Handle cancel and bail out if cancelled.
 	if c.handleCancel() {
 		return
@@ -200,7 +200,7 @@ func (c *kick) handleNotes() {
 }
 
 // HandleConfirmation handles the confirmation.
-func (c *kick) handleConfirmation() {
+func (c *ban) handleConfirmation() {
 	// Handle cancel and bail out if cancelled.
 	if c.handleCancel() {
 		return
@@ -225,34 +225,34 @@ func (c *kick) handleConfirmation() {
 	}
 
 	// Input is 1.
-	// For each user, kick, create mod log, send mod log and store in database.
+	// For each user, ban, create mod log, send mod log and store in database.
 
-	// Store kick count.
-	var kickCount int
+	// Store ban count.
+	var banCount int
 
 	for i := 0; i < len(c.modData.Mentions); i++ {
 		// Store user.
 		user := c.modData.Mentions[i]
 
-		// Store time of kick.
+		// Store time of ban.
 		timestamp := time.Now()
 
-		// Kick user.
-		err := c.connection.GuildMemberDeleteWithReason(c.message.GuildID, user.ID, c.modData.Reason)
+		// Ban user.
+		err := c.connection.GuildBanCreateWithReason(c.message.GuildID, user.ID, c.modData.Reason, 0)
 		if err != nil {
 			// Send error message and go to next loop iteration.
-			_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":x: | Failed to kick "+user.Username+"#"+user.Discriminator)
+			_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":x: | Failed to ban "+user.Username+"#"+user.Discriminator)
 			continue
 		}
 
 		// Send embed with log.
 		embed := &discordgo.MessageEmbed{
-			Color: int(actionColourKick),
+			Color: int(actionColourBan),
 			Author: &discordgo.MessageEmbedAuthor{
 				Name:    c.message.Author.Username + "#" + c.message.Author.Discriminator,
 				IconURL: c.message.Author.AvatarURL(""),
 			},
-			Title:       "Kick | Case ID: #",
+			Title:       "Ban | Case ID: #",
 			Description: "User: " + user.Username + "#" + user.Discriminator + "\nID: " + user.ID,
 			Fields: []*discordgo.MessageEmbedField{
 				{
@@ -272,25 +272,25 @@ func (c *kick) handleConfirmation() {
 		// Send log in log channel.
 		_, _ = c.connection.ChannelMessageSendEmbed(c.modData.LogChannelID, embed)
 
-		// Increment kick count.
-		kickCount++
+		// Increment ban count.
+		banCount++
 
 		// Sleep for 0.2s.
 		time.Sleep(200 * time.Millisecond)
 	}
 
 	// Update menu.
-	if kickCount == len(c.modData.Mentions) {
-		c.updateMenu("\n> Kick successful")
-	} else if kickCount > 0 {
-		c.updateMenu("\n> Kick partially successful")
+	if banCount == len(c.modData.Mentions) {
+		c.updateMenu("\n> Ban successful")
+	} else if banCount > 0 {
+		c.updateMenu("\n> Ban partially successful")
 	} else {
-		c.updateMenu("\n> Kick failed")
+		c.updateMenu("\n> Ban failed")
 	}
 }
 
 // UpdateMenu updates the menu message with the specified content.
-func (c *kick) updateMenu(content string) {
+func (c *ban) updateMenu(content string) {
 	// Create message content, use md as markdown for coloured formatting.
 	message := "```md\n" + strings.Join(c.menuData.Log, "\n")
 	if content != "" {

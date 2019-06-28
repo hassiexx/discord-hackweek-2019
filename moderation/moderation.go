@@ -9,6 +9,12 @@ import (
 func Initialise(client *core.DiscordClient) {
 	// Register moderation commands.
 
+	// Ban.
+	client.RegisterCommand("ban", func(connection *discordgo.Session, message *discordgo.Message, args []string) {
+		(&ban{client: client, connection: connection, message: message, args: args,
+			menuData: &core.MenuCommandData{}, modData: &moderationData{}}).execute()
+	})
+
 	// Kick.
 	client.RegisterCommand("kick", func(connection *discordgo.Session, message *discordgo.Message, args []string) {
 		(&kick{client: client, connection: connection, message: message, args: args,
