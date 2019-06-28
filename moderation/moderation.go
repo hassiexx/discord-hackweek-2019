@@ -25,4 +25,10 @@ func Initialise(client *core.DiscordClient) {
 	client.RegisterCommand("logchannel", func(connection *discordgo.Session, message *discordgo.Message, args []string) {
 		(&setLogChannel{client: client, connection: connection, message: message, args: args}).execute()
 	})
+
+	// Warn.
+	client.RegisterCommand("warn", func(connection *discordgo.Session, message *discordgo.Message, args []string) {
+		(&warn{client: client, connection: connection, message: message, args: args,
+			menuData: &core.MenuCommandData{}, modData: &moderationData{}}).execute()
+	})
 }
