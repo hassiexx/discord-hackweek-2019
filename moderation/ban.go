@@ -19,6 +19,26 @@ type ban struct {
 }
 
 func (c *ban) execute() {
+	// Get permissions for the user and bot.
+	userHasPerms, err1 := utility.HasPermission(c.connection, c.message.Author.ID, c.message.ChannelID, discordgo.PermissionBanMembers)
+	botHasPerms, err2 := utility.HasPermission(c.connection, c.message.Author.ID, c.message.ChannelID, discordgo.PermissionBanMembers)
+	if err1 != nil || err2 != nil {
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":x: | An internal error occurred")
+		return
+	}
+
+	// If the user does not have permission, send message and bail out.
+	if !userHasPerms {
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You require BAN permissions to perform this action")
+		return
+	}
+
+	// If the bot does not have permission, send message and bail out.
+	if !botHasPerms {
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | The bot requires BAN permissions to perform this action")
+		return
+	}
+
 	// If there are no mentions for banning users, bail out.
 	if len(c.message.Mentions) == 0 {
 		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You need to mention at least one user")
@@ -49,26 +69,6 @@ func (c *ban) execute() {
 				return
 			}
 		}
-	}
-
-	// Get permissions for the user and bot.
-	userHasPerms, err1 := utility.HasPermission(c.connection, c.message.Author.ID, c.message.ChannelID, discordgo.PermissionBanMembers)
-	botHasPerms, err2 := utility.HasPermission(c.connection, c.message.Author.ID, c.message.ChannelID, discordgo.PermissionBanMembers)
-	if err1 != nil || err2 != nil {
-		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":x: | An internal error occurred")
-		return
-	}
-
-	// If the user does not have permission, send message and bail out.
-	if !userHasPerms {
-		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You require BAN permissions to perform this action")
-		return
-	}
-
-	// If the bot does not have permission, send message and bail out.
-	if !botHasPerms {
-		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | The bot requires BAN permissions to perform this action")
-		return
 	}
 
 	// Get log channel.

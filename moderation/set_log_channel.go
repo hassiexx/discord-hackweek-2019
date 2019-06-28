@@ -20,12 +20,6 @@ type setLogChannel struct {
 }
 
 func (c *setLogChannel) execute() {
-	// If args are none, bail out.
-	if len(c.args) == 0 {
-		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You need to specify the channel either by providing the ID or mentioning it")
-		return
-	}
-
 	// If the user does not have manage server permissions, bail out.
 	hasPerm, err := utility.HasPermission(c.connection, c.message.Author.ID, c.message.ChannelID, discordgo.PermissionManageServer)
 	if err != nil {
@@ -34,6 +28,12 @@ func (c *setLogChannel) execute() {
 	}
 	if !hasPerm {
 		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You require the MANAGE SERVER permission to set the log channel")
+		return
+	}
+
+	// If args are none, bail out.
+	if len(c.args) == 0 {
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You need to specify the channel either by providing the ID or mentioning it")
 		return
 	}
 
