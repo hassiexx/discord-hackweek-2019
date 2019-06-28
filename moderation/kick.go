@@ -21,7 +21,34 @@ type kick struct {
 func (c *kick) execute() {
 	// If there are no mentions for kicking users, bail out.
 	if len(c.message.Mentions) == 0 {
+		_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You need to mention at least one user to kick")
 		return
+	}
+
+	// Store mentions.
+	c.modData.Mentions = c.message.Mentions
+
+	// Check if the users to kick have a higher role than the bot.
+	// We'll also check for self mentions at this point too.
+	for i := 0; i < len(c.modData.Mentions); i++ {
+		// Store user.
+		user := c.modData.Mentions[i]
+
+		if user.ID == c.message.Author.ID {
+			_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | You cannot moderate yourself")
+			return
+		} else {
+			botHigher, err := utility.IsBotHigher(c.connection, c.message.GuildID, user.ID)
+			if err != nil {
+				_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":x: | An internal error occurred")
+				return
+			}
+			if !botHigher {
+				_, _ = c.connection.ChannelMessageSend(c.message.ChannelID, ":exclamation: | Cannot moderate "+
+					user.Username+"#"+user.Discriminator+" because they have a higher role than the bot")
+				return
+			}
+		}
 	}
 
 	// Get permissions for the user and bot.
@@ -75,15 +102,15 @@ func (c *kick) execute() {
 
 	// The menu title will be the list of users being kicked as well as a message to cancel the kick.
 	var menuTitle string = "Moderation menu - Kick\n------------------------------\n" +
-		"Users to kick: " + c.message.Mentions[0].Username + "#" + c.message.Mentions[0].Discriminator
-	for i := 1; i < len(c.message.Mentions); i++ {
-		menuTitle = menuTitle + ", " + c.message.Mentions[i].Username + "#" + c.message.Mentions[i].Discriminator
+		"Users to kick: " + c.modData.Mentions[0].Username + "#" + c.modData.Mentions[0].Discriminator
+	for i := 1; i < len(c.modData.Mentions); i++ {
+		menuTitle = menuTitle + ", " + c.modData.Mentions[i].Username + "#" + c.modData.Mentions[i].Discriminator
 	}
-	menuTitle = "\nEnter < cancel > at any time to cancel\n"
+	menuTitle = menuTitle + "\nEnter < cancel > at any time to cancel\n"
 	c.menuData.Log = append(c.menuData.Log, menuTitle)
 
 	// Register menu command.
-	c.client.RegisterMenuCommand(c.message.GuildID+"-"+c.message.Author.ID, func(message *discordgo.Message, args []string) {
+	c.client.RegisterMenuCommand(c.message.ChannelID+"-"+c.message.Author.ID, func(message *discordgo.Message, args []string) {
 		// Store new message and args.
 		c.message = message
 		c.args = args
@@ -200,9 +227,12 @@ func (c *kick) handleConfirmation() {
 	// Input is 1.
 	// For each user, kick, create mod log, send mod log and store in database.
 
-	for i := 0; i < len(c.message.Mentions); i++ {
+	// Store kick count.
+	var kickCount int
+
+	for i := 0; i < len(c.modData.Mentions); i++ {
 		// Store user.
-		user := c.message.Mentions[i]
+		user := c.modData.Mentions[i]
 
 		// Store time of kick.
 		timestamp := time.Now()
@@ -223,7 +253,7 @@ func (c *kick) handleConfirmation() {
 				IconURL: c.message.Author.AvatarURL(""),
 			},
 			Title:       "Kick | Case ID: #",
-			Description: user.Username + "#" + user.Discriminator + " was kicked\nID: " + user.ID,
+			Description: "User\n" + user.Username + "#" + user.Discriminator + "\nID: " + user.ID,
 			Fields: []*discordgo.MessageEmbedField{
 				{
 					Name:   "Reason",
@@ -242,19 +272,35 @@ func (c *kick) handleConfirmation() {
 		// Send log in log channel.
 		_, _ = c.connection.ChannelMessageSendEmbed(c.modData.LogChannelID, embed)
 
+		// Increment kick count.
+		kickCount++
+
 		// Sleep for 0.2s.
 		time.Sleep(200 * time.Millisecond)
+	}
+
+	// Update menu.
+	if kickCount == len(c.modData.Mentions) {
+		c.updateMenu("\n> Kick successful")
+	} else if kickCount > 0 {
+		c.updateMenu("\n> Kick partially successful")
+	} else {
+		c.updateMenu("\n> Kick failed")
 	}
 }
 
 // UpdateMenu updates the menu message with the specified content.
 func (c *kick) updateMenu(content string) {
 	// Create message content, use md as markdown for coloured formatting.
-	message := "```md" + strings.Join(c.menuData.Log, "\n") + "\n" + content + "```"
+	message := "```md\n" + strings.Join(c.menuData.Log, "\n")
+	if content != "" {
+		message = message + "\n"
+	}
+	message = message + content + "```"
 
 	// If menu message is not nil, first delete the menu.
 	if c.menuData.Message != nil {
-		_ = c.connection.ChannelMessageDelete(c.menuData.Message.ChannelID, c.menuData.Message.ChannelID)
+		_ = c.connection.ChannelMessageDelete(c.menuData.Message.ChannelID, c.menuData.Message.ID)
 		c.menuData.Message = nil
 	}
 

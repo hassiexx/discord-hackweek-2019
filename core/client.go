@@ -21,16 +21,22 @@ type DiscordClient struct {
 // NewClient creates a new instance of the Discord client.
 func NewClient(token string) (*DiscordClient, error) {
 	// Create connection.
-	connection, err := discordgo.New(token)
+	connection, err := discordgo.New("Bot " + token)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create client.
 	return &DiscordClient{
-		commands:   make(map[string]Command),
-		connection: connection,
+		commands:     make(map[string]Command),
+		connection:   connection,
+		menuCommands: make(map[string]MenuCommand),
 	}, nil
+}
+
+// Connect opens the connection to the Discord gateway.
+func (c *DiscordClient) Connect() error {
+	return c.connection.Open()
 }
 
 // Command gets the specified command.

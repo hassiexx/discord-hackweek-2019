@@ -20,7 +20,7 @@ func Connect() error {
 	}
 
 	// Connect.
-	err = client.Connect(context.Background())
+	err = cl.Connect(context.Background())
 	if err != nil {
 		return err
 	}

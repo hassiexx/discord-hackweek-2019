@@ -1,6 +1,7 @@
 package moderation
 
 import (
+	"github.com/bwmarrin/discordgo"
 	"github.com/hassieswift621/discord-hackweek-2019/db"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -26,9 +27,10 @@ const (
 	actionColourBan  actionColour = 0xf54e42
 )
 
-// ModerationData stores the data about the moderation received from menu commands.
+// ModerationData stores the data about the moderation.
 type moderationData struct {
 	LogChannelID string
+	Mentions     []*discordgo.User
 	Reason       string
 	Notes        string
 }
