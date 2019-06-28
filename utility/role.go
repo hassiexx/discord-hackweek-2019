@@ -4,7 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// IsBotHigher checks whether the bot has a higher role than the user to ban.
+// IsBotHigher checks whether the bot has a higher role than the user to moderate.
 func IsBotHigher(connection *discordgo.Session, guildID string, userID string) (bool, error) {
 	// Get guild roles.
 	roles, err := connection.GuildRoles(guildID)
