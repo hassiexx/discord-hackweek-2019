@@ -13,11 +13,11 @@ Instead of chaining everything in a single command with an argument spliterator 
  - logchannel #channel - Sets the log channel to send moderation logs to, this must be set.
  - warn @user - Activates the warn menu to warn the mentioned users
 
-[](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_01.png)
-[](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_02.png)
-[](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_03.png)
-[](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_04.png)
-[](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_05.png)
+![](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_01.png)
+![](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_02.png)
+![](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_03.png)
+![](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_04.png)
+![](https://raw.githubusercontent.com/hassieswift621/discord-hackweek-2019/master/screenshot_05.png)
 
 # Instructions
 
