@@ -1,6 +1,5 @@
 # discord-hackweek-2019
 A moderation bot in Go for Discord Hack Week 2019 using menu command systems for improved usability and interaction.
-Still heavily in progress though, no commands running as of yet.
 
 The purpose of this bot was to show a different way of executing kicks and bans rather than trying to make as many commands as possible for this event.
 
