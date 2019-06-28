@@ -253,7 +253,7 @@ func (c *kick) handleConfirmation() {
 				IconURL: c.message.Author.AvatarURL(""),
 			},
 			Title:       "Kick | Case ID: #",
-			Description: "User\n" + user.Username + "#" + user.Discriminator + "\nID: " + user.ID,
+			Description: "User: " + user.Username + "#" + user.Discriminator + "\nID: " + user.ID,
 			Fields: []*discordgo.MessageEmbedField{
 				{
 					Name:   "Reason",
