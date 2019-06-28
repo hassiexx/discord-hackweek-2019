@@ -8,14 +8,18 @@ Instead of chaining everything in a single command with an argument spliterator 
 
 # Commands
  - Prefix: ``m.``
- - ``ban @user`` - Activates the ban menu to ban the mentioned users
- - ``kick @user`` - Activates the kick menu to kick the mentioned users
- - ``logchannel`` #channel - Sets the log channel to send moderation logs to, this must be set.
- - ``warn @user`` - Activates the warn menu to warn the mentioned users
+ - ``ban @user`` - Activates the ban menu to ban the mentioned users.
+ - ``kick @user`` - Activates the kick menu to kick the mentioned users.
+ - ``logchannel #channel`` - Sets the log channel to send moderation logs to, this must be set.
+ - ``ping`` - Pong! with the latency (round trip of message send and receive) time.
+ - ``warn @user`` - Activates the warn menu to warn the mentioned users.
 
 <img src="/screenshot_01.png" width="300"> <img src="/screenshot_02.png" width="300"> <img src="/screenshot_03.png" width="300"> <img src="/screenshot_04.png" width="300"> <img src="/screenshot_05.png" width="300">
 
-# Setup
+# Host
+The bot is hosted by myself until the event officially ends on Tuesday. The bot can be added using this link: <https://discordapp.com/api/oauth2/authorize?client_id=593898637222739987&permissions=76934&scope=bot>
+
+# Self Setup
 
 ## Requirements
  - Golang 1.12
